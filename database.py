@@ -8,15 +8,19 @@ except ImportError:
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# 1. Gunakan POSTGRES_URL sesuai dengan yang disediakan Vercel & Supabase
 DATABASE_URL = os.getenv("POSTGRES_URL") or os.getenv("DATABASE_URL")
 
-# 2. Ubah awalan postgres:// menjadi postgresql:// agar diterima oleh SQLAlchemy
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+if DATABASE_URL:
+    # 1. Ubah awalan postgres:// menjadi postgresql://
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    
+    # 2. Hapus parameter &supa=... agar tidak bikin error psycopg2
+    if "&supa=" in DATABASE_URL:
+        DATABASE_URL = DATABASE_URL.split("&supa=")[0]
 
 if not DATABASE_URL:
-    raise ValueError("POSTGRES_URL tidak ditemukan! Pastikan Environment Variables sudah terpasang di Vercel.")
+    raise ValueError("POSTGRES_URL tidak ditemukan di Environment Variables Vercel!")
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
