@@ -16,8 +16,6 @@ import schemas
 from database import engine, get_db
 from pydantic import BaseModel
 
-models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI(title="Blackwood Barbershop API")
 
 # Setup CORS
